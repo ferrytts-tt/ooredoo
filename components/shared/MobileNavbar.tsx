@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useNotificationStore } from '@/lib/stores/notificationStore'
 
 interface NavItem {
   title: string
@@ -31,6 +32,7 @@ interface MobileNavbarProps {
 
 export function MobileNavbar({ items, onMenuClick, userRole }: MobileNavbarProps) {
   const pathname = usePathname()
+  const { unreadCount } = useNotificationStore()
 
   return (
     <>
@@ -44,10 +46,16 @@ export function MobileNavbar({ items, onMenuClick, userRole }: MobileNavbarProps
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="text-muted-foreground relative">
-            <Bell size={20} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-red-600 rounded-full border-2 border-white dark:border-slate-950"></span>
-          </Button>
+          <Link href="/notifications">
+            <Button variant="ghost" size="icon" className="text-muted-foreground relative">
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute top-2 right-2 w-4 h-4 bg-red-600 text-[9px] text-white font-black rounded-full border-2 border-white dark:border-slate-950 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </Button>
+          </Link>
           <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={onMenuClick}>
             <Menu size={22} />
           </Button>

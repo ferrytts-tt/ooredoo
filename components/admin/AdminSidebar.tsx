@@ -28,6 +28,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useNotificationStore } from '@/lib/stores/notificationStore'
 
 const navItems = [
   {
@@ -85,6 +86,7 @@ export function AdminSidebar({ mobileOpen: externalMobileOpen, onMobileOpenChang
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const [collapsed, setCollapsed] = useState(false)
+  const { unreadCount } = useNotificationStore()
   const [internalMobileOpen, setInternalMobileOpen] = useState(false)
 
   const mobileOpen = externalMobileOpen ?? internalMobileOpen
@@ -127,6 +129,8 @@ export function AdminSidebar({ mobileOpen: externalMobileOpen, onMobileOpenChang
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          const badgeValue = item.title === 'Notifications' ? (unreadCount > 0 ? unreadCount.toString() : undefined) : item.badge
+          
           return (
             <Link
               key={item.href}
@@ -153,7 +157,7 @@ export function AdminSidebar({ mobileOpen: externalMobileOpen, onMobileOpenChang
               {!collapsed && (
                 <>
                   <span className="font-medium text-sm flex-1">{item.title}</span>
-                  {item.badge && (
+                  {badgeValue && (
                     <Badge
                       variant={item.badgeVariant || 'secondary'}
                       className={cn(
@@ -161,14 +165,14 @@ export function AdminSidebar({ mobileOpen: externalMobileOpen, onMobileOpenChang
                         isActive && item.badgeVariant !== 'destructive' && 'bg-white/20 text-white border-0'
                       )}
                     >
-                      {item.badge}
+                      {badgeValue}
                     </Badge>
                   )}
                 </>
               )}
-              {collapsed && item.badge && (
+              {collapsed && badgeValue && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
-                  {item.badge}
+                  {badgeValue}
                 </span>
               )}
             </Link>

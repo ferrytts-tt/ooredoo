@@ -23,6 +23,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { useNotificationStore } from '@/lib/stores/notificationStore'
+import { Badge } from '@/components/ui/badge'
 
 const navItems = [
   {
@@ -45,6 +47,11 @@ const navItems = [
     href: '/revendeur/paiements',
     icon: CreditCard,
   },
+  {
+    title: 'Notifications',
+    href: '/notifications',
+    icon: Bell,
+  },
 ]
 
 interface RevendeurSidebarProps {
@@ -57,6 +64,7 @@ export function RevendeurSidebar({ mobileOpen: externalMobileOpen, onMobileOpenC
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const [collapsed, setCollapsed] = useState(false)
+  const { unreadCount } = useNotificationStore()
   const [internalMobileOpen, setInternalMobileOpen] = useState(false)
 
   const mobileOpen = externalMobileOpen ?? internalMobileOpen
@@ -102,6 +110,8 @@ export function RevendeurSidebar({ mobileOpen: externalMobileOpen, onMobileOpenC
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          const badgeValue = item.title === 'Notifications' ? (unreadCount > 0 ? unreadCount.toString() : undefined) : undefined
+          
           return (
             <Link
               key={item.href}
@@ -126,7 +136,22 @@ export function RevendeurSidebar({ mobileOpen: externalMobileOpen, onMobileOpenC
                 isActive ? 'text-current' : ''
               )} size={18} />
               {!collapsed && (
-                <span className="font-medium text-sm flex-1">{item.title}</span>
+                <>
+                  <span className="font-medium text-sm flex-1">{item.title}</span>
+                  {badgeValue && (
+                    <Badge
+                      variant="destructive"
+                      className="text-[10px] px-1.5 py-0 h-4 min-w-4"
+                    >
+                      {badgeValue}
+                    </Badge>
+                  )}
+                </>
+              )}
+              {collapsed && badgeValue && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
+                  {badgeValue}
+                </span>
               )}
             </Link>
           )

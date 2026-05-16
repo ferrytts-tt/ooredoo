@@ -9,6 +9,9 @@ import {
   ArrowLeftRight, 
   CreditCard 
 } from 'lucide-react'
+import { useEffect } from 'react'
+import { useNotificationStore } from '@/lib/stores/notificationStore'
+import { notificationService } from '@/lib/services/notificationService'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -34,6 +37,20 @@ export function AppShell({ children, sidebar, userRole }: AppShellProps) {
   ]
 
   const navItems = userRole === 'admin' ? adminNavItems : revendeurNavItems
+
+  const { unreadCount, fetchNotifications, addNotification } = useNotificationStore()
+
+  useEffect(() => {
+    // 1. Charger les notifs existantes
+    fetchNotifications()
+
+    // 2. S'abonner au temps réel
+    const unsubscribe = notificationService.subscribeToNotifications((newNotif) => {
+      addNotification(newNotif)
+    })
+
+    return () => unsubscribe()
+  }, [fetchNotifications, addNotification])
 
   // Clone sidebar and pass props
   const SidebarWithProps = React.cloneElement(sidebar as React.ReactElement<any>, {
