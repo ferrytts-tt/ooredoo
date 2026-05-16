@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
     if (profileError) throw profileError
 
-    // 3. Créer l'entrée dans la table resellers
+    // 3. Créer l'entrée dans la table resellers (SANS la colonne address qui manque)
     const { data: resellerData, error: resellerError } = await supabaseAdmin
       .from('resellers')
       .insert({
@@ -47,7 +47,6 @@ export async function POST(request: Request) {
         manager_name,
         phone,
         city,
-        address: city || 'Tunisie',
         cin: matricule || '00000000',
         credit_limit: Number(credit_limit),
         advance_paid: 0,

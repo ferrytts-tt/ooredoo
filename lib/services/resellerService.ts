@@ -9,7 +9,7 @@ export const resellerService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('resellers')
-      .select('*')
+      .select('id, company_name, manager_name, phone, city, cin, email, status, credit_limit, advance_paid, current_debt, available_credit, created_at')
       .order('created_at', { ascending: false })
     
     if (error) throw error
