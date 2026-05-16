@@ -9,9 +9,8 @@ export const resellerService = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('resellers')
-      .select('id, company_name')
-      .order('created_at', { ascending: false })
-    
+      .select('id, company_name, manager_name, phone, city, status, credit_limit, current_debt')
+
     if (error) throw error
     return data as Reseller[]
   },
@@ -24,7 +23,7 @@ export const resellerService = {
     const { count, error } = await supabase
       .from('resellers')
       .select('*', { count: 'exact', head: true })
-    
+
     if (error) throw error
     return count || 0
   },
@@ -39,7 +38,7 @@ export const resellerService = {
       .insert(reseller)
       .select()
       .single()
-    
+
     if (error) throw error
     return data as Reseller
   },
@@ -55,7 +54,7 @@ export const resellerService = {
       .eq('id', id)
       .select()
       .single()
-    
+
     if (error) throw error
     return data as Reseller
   },
@@ -69,7 +68,7 @@ export const resellerService = {
       .from('resellers')
       .update({ status })
       .eq('id', id)
-    
+
     if (error) throw error
   }
 }
