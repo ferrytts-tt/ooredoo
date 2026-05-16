@@ -200,8 +200,8 @@ export function RevendeurSidebar({ mobileOpen: externalMobileOpen, onMobileOpenC
         </button>
       )}
       <aside className={cn(
-        'fixed left-0 top-0 h-full z-50 lg:hidden',
-        'w-64 bg-card border-r border-border shadow-xl transition-transform duration-300',
+        'fixed left-0 top-0 h-full z-[100] lg:hidden',
+        'w-72 bg-white dark:bg-slate-950 border-r border-border shadow-2xl transition-transform duration-300 ease-in-out',
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <SidebarContent />
