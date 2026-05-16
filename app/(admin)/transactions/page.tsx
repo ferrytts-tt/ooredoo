@@ -359,7 +359,7 @@ export default function TransactionsPage() {
                                 className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
                                 onClick={async () => {
                                   try {
-                                    await transactionService.approve(txn.id); // Devrait être annuler
+                                    await transactionService.cancel(txn.id);
                                     setTransactionsList(transactionsList.map(t => t.id === txn.id ? {...t, status: 'annule'} : t));
                                     toast.error('Commande annulée');
                                   } catch (error) {
@@ -435,9 +435,14 @@ export default function TransactionsPage() {
                           <Button 
                             size="sm" 
                             className="bg-emerald-600 hover:bg-emerald-700 text-white h-9 px-3 rounded-xl text-xs font-bold"
-                            onClick={() => {
-                              updateTransactionStatus(txn.id, 'complete');
-                              toast.success('Commande approuvée !');
+                            onClick={async () => {
+                              try {
+                                await transactionService.approve(txn.id);
+                                setTransactionsList(transactionsList.map(t => t.id === txn.id ? {...t, status: 'complete'} : t));
+                                toast.success('Commande approuvée !');
+                              } catch (error) {
+                                toast.error('Erreur');
+                              }
                             }}
                           >
                             Approuver
@@ -446,9 +451,14 @@ export default function TransactionsPage() {
                             size="sm" 
                             variant="outline" 
                             className="h-9 px-3 rounded-xl text-xs font-bold"
-                            onClick={() => {
-                              updateTransactionStatus(txn.id, 'annule');
-                              toast.error('Commande annulée');
+                            onClick={async () => {
+                              try {
+                                await transactionService.cancel(txn.id);
+                                setTransactionsList(transactionsList.map(t => t.id === txn.id ? {...t, status: 'annule'} : t));
+                                toast.error('Commande annulée');
+                              } catch (error) {
+                                toast.error('Erreur');
+                              }
                             }}
                           >
                             Annuler
@@ -519,11 +529,16 @@ export default function TransactionsPage() {
             
             <DialogFooter className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
               <DialogClose render={<Button type="button" variant="outline" className="h-10">Annuler</Button>} />
-              <Button type="button" className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-6 h-10" onClick={() => {
+              <Button type="button" className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-6 h-10" onClick={async () => {
                 const note = (document.getElementById('txn-note') as HTMLTextAreaElement).value;
-                updateTransactionNote(noteTxn.id, note);
-                setNoteTxn(null);
-                toast.success('Note enregistrée avec succès !');
+                try {
+                  await transactionService.updateNote(noteTxn.id, note);
+                  setTransactionsList(transactionsList.map(t => t.id === noteTxn.id ? { ...t, notes: note } : t));
+                  setNoteTxn(null);
+                  toast.success('Note enregistrée avec succès !');
+                } catch (error) {
+                  toast.error('Erreur lors de l\'enregistrement');
+                }
               }}>
                 Enregistrer la note
               </Button>

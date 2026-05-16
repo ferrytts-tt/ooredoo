@@ -57,5 +57,31 @@ export const transactionService = {
       .eq('id', id)
     
     if (error) throw error
+  },
+
+  /**
+   * Annule une transaction
+   */
+  async cancel(id: string) {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('transactions')
+      .update({ status: 'annule' })
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  /**
+   * Met à jour la note d'une transaction
+   */
+  async updateNote(id: string, note: string) {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('transactions')
+      .update({ notes: note })
+      .eq('id', id)
+    
+    if (error) throw error
   }
 }
