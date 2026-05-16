@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { MobileNavbar } from '@/components/shared/MobileNavbar'
 import { 
   LayoutDashboard, 
@@ -9,9 +9,9 @@ import {
   ArrowLeftRight, 
   CreditCard 
 } from 'lucide-react'
-import { useEffect } from 'react'
 import { useNotificationStore } from '@/lib/stores/notificationStore'
 import { notificationService } from '@/lib/services/notificationService'
+import { resellerService } from '@/lib/services/resellerService'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -21,10 +21,36 @@ interface AppShellProps {
 
 export function AppShell({ children, sidebar, userRole }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [resellerCount, setResellerCount] = useState<number | null>(null)
+  
+  const { unreadCount, fetchNotifications, addNotification } = useNotificationStore()
+
+  useEffect(() => {
+    // 1. Charger les notifs existantes
+    fetchNotifications()
+
+    // 2. Charger le nombre de revendeurs
+    const fetchResellerCount = async () => {
+      try {
+        const count = await resellerService.getCount()
+        setResellerCount(count)
+      } catch (error) {
+        console.error('Error fetching reseller count:', error)
+      }
+    }
+    fetchResellerCount()
+
+    // 3. S'abonner au temps réel
+    const unsubscribe = notificationService.subscribeToNotifications((newNotif) => {
+      addNotification(newNotif)
+    })
+
+    return () => unsubscribe()
+  }, [fetchNotifications, addNotification])
 
   const adminNavItems = [
     { title: 'Home', href: '/dashboard', icon: LayoutDashboard },
-    { title: 'Clients', href: '/revendeurs', icon: Users, badge: '47' },
+    { title: 'Clients', href: '/revendeurs', icon: Users, badge: resellerCount?.toString() || '0' },
     { title: 'Produits', href: '/produits', icon: Package },
     { title: 'Txns', href: '/transactions', icon: ArrowLeftRight },
   ]
@@ -37,20 +63,6 @@ export function AppShell({ children, sidebar, userRole }: AppShellProps) {
   ]
 
   const navItems = userRole === 'admin' ? adminNavItems : revendeurNavItems
-
-  const { unreadCount, fetchNotifications, addNotification } = useNotificationStore()
-
-  useEffect(() => {
-    // 1. Charger les notifs existantes
-    fetchNotifications()
-
-    // 2. S'abonner au temps réel
-    const unsubscribe = notificationService.subscribeToNotifications((newNotif) => {
-      addNotification(newNotif)
-    })
-
-    return () => unsubscribe()
-  }, [fetchNotifications, addNotification])
 
   // Clone sidebar and pass props
   const SidebarWithProps = React.cloneElement(sidebar as React.ReactElement<any>, {
