@@ -93,6 +93,7 @@ export default function RevendeursPage() {
     const managerInput = document.getElementById('manager') as HTMLInputElement
     const phoneInput = document.getElementById('phone') as HTMLInputElement
     const regionInput = document.getElementById('region') as HTMLInputElement
+    const matriculeInput = document.getElementById('matricule') as HTMLInputElement
     const limitInput = document.getElementById('limit') as HTMLInputElement
     const emailInput = document.getElementById('email') as HTMLInputElement
     const passwordInput = document.getElementById('password') as HTMLInputElement
@@ -103,9 +104,10 @@ export default function RevendeursPage() {
         manager_name: managerInput?.value || '',
         phone: phoneInput?.value || '',
         city: regionInput?.value || '',
+        matricule: matriculeInput?.value || '',
         credit_limit: limitInput?.value ? Number(limitInput.value) : 5000,
         email: emailInput?.value || '',
-        password: passwordInput?.value || 'Rev@2024!', // Default if empty
+        password: passwordInput?.value || 'Rev@2024!',
       }
 
       const response = await fetch('/api/admin/create-reseller', {
@@ -259,7 +261,6 @@ export default function RevendeursPage() {
             </div>
           </div>
 
-          {/* Desktop Table View */}
           <div className="hidden lg:block overflow-x-auto">
             <Table>
               <TableHeader>
@@ -375,7 +376,6 @@ export default function RevendeursPage() {
             </Table>
           </div>
 
-          {/* Mobile Card View */}
           <div className="lg:hidden divide-y divide-slate-100 dark:divide-slate-800">
             {filteredResellers.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground text-sm italic">
@@ -482,14 +482,6 @@ export default function RevendeursPage() {
               })
             )}
           </div>
-          <div className="p-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-            <div>Affichage de {filteredResellers.length} revendeur(s)</div>
-            {/* Pagination placeholder */}
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm" disabled>Précédent</Button>
-              <Button variant="outline" size="sm" disabled>Suivant</Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
@@ -577,7 +569,7 @@ export default function RevendeursPage() {
                     credit_limit: limit
                   });
                   
-                  setResellersList(resellersList.map(r => r.id === editingReseller.id ? updated : r));
+                  setResellersList(resellersList.map(r => r.id === editingReseller.id ? { ...r, ...updated } : r));
                   setEditingReseller(null);
                   toast.success('Informations modifiées avec succès !');
                 } catch (error) {
