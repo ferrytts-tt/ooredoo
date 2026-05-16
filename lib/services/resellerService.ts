@@ -17,6 +17,19 @@ export const resellerService = {
   },
 
   /**
+   * Récupère le nombre total de revendeurs
+   */
+  async getCount() {
+    const supabase = createClient()
+    const { count, error } = await supabase
+      .from('resellers')
+      .select('*', { count: 'exact', head: true })
+    
+    if (error) throw error
+    return count || 0
+  },
+
+  /**
    * Crée un nouveau revendeur
    */
   async create(reseller: Partial<Reseller>) {

@@ -29,6 +29,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useNotificationStore } from '@/lib/stores/notificationStore'
+import { useEffect } from 'react'
+import { resellerService } from '@/lib/services/resellerService'
 
 const navItems = [
   {
@@ -87,7 +89,20 @@ export function AdminSidebar({ mobileOpen: externalMobileOpen, onMobileOpenChang
   const { theme, setTheme } = useTheme()
   const [collapsed, setCollapsed] = useState(false)
   const { unreadCount } = useNotificationStore()
+  const [resellerCount, setResellerCount] = useState<number | null>(null)
   const [internalMobileOpen, setInternalMobileOpen] = useState(false)
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const count = await resellerService.getCount()
+        setResellerCount(count)
+      } catch (error) {
+        console.error('Error fetching reseller count:', error)
+      }
+    }
+    fetchCount()
+  }, [])
 
   const mobileOpen = externalMobileOpen ?? internalMobileOpen
   const setMobileOpen = onMobileOpenChange ?? setInternalMobileOpen
@@ -129,7 +144,13 @@ export function AdminSidebar({ mobileOpen: externalMobileOpen, onMobileOpenChang
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          const badgeValue = item.title === 'Notifications' ? (unreadCount > 0 ? unreadCount.toString() : undefined) : item.badge
+          
+          let badgeValue = item.badge
+          if (item.title === 'Notifications') {
+            badgeValue = unreadCount > 0 ? unreadCount.toString() : undefined
+          } else if (item.title === 'Revendeurs' && resellerCount !== null) {
+            badgeValue = resellerCount.toString()
+          }
           
           return (
             <Link
